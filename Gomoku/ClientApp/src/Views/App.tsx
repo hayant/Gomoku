@@ -1,10 +1,10 @@
 import React from "react";
-import MainMenu from "./MainMenu";
+import MainMenu from "./MainMenu/MainMenu";
 import {BrowserRouter, Route, Routes} from "react-router";
-import GameView from "../GameView/GameView";
-import LoginForm from "../LoginForm/LoginForm";
-import OnlineLobbyView from "../OnlineLobby/OnlineLobbyView";
-import RequireAuth from "../RequireAuth";
+import GameView from "./GameView/GameView";
+import LoginForm from "./LoginForm/LoginForm";
+import OnlineLobbyView from "./OnlineLobby/OnlineLobbyView";
+import RequireAuth from "./RequireAuth";
 
 function App() {
     return (
