@@ -13,7 +13,7 @@ const appVersion = `v${pkg.version} · build ${buildNumber} · ${shortSha} · ${
 // Single-entry SPA: one bundle served from wwwroot root. The React Router app
 // (src/Views/MainMenu/App.tsx) handles the login view and all /app* routes.
 module.exports = {
-    entry: "./src/Views/MainMenu/index.tsx",
+    entry: "./src/Views/index.tsx",
     mode: "development",
     output: {
         filename: "bundle.js",
@@ -40,7 +40,7 @@ module.exports = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: "src/Views/MainMenu/index.html",
+            template: "src/Views/index.html",
         }),
         new webpack.DefinePlugin({
             __APP_VERSION__: JSON.stringify(appVersion),
