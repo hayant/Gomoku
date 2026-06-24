@@ -1,10 +1,7 @@
 import React from "react";
-import { Box } from "@mui/material";
+import {Box, useTheme, alpha} from "@mui/material";
 import { keyframes } from "@mui/system";
 import { RequestActivity } from "../../Helpers/RequestActivity";
-
-const NEON_CYAN = "#05d9e8";
-const NEON_MAGENTA = "#ff2a6d";
 
 // Two neon rings counter-rotating, with a soft pulse on the glow.
 const spin = keyframes`
@@ -30,6 +27,8 @@ const getSnapshot = () => RequestActivity.getCount();
 const LoadingOverlay = () => {
     const inFlight = React.useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 
+    const theme = useTheme();
+
     if (inFlight <= 0) {
         return null;
     }
@@ -48,7 +47,7 @@ const LoadingOverlay = () => {
                 alignItems: "center",
                 justifyContent: "center",
                 gap: 3,
-                backgroundColor: "rgba(13, 2, 33, 0.55)",
+                backgroundColor: alpha(theme.palette.background.default, 0.55),
                 backdropFilter: "blur(3px)",
                 pointerEvents: "all",
             }}
@@ -68,9 +67,9 @@ const LoadingOverlay = () => {
                         inset: 0,
                         borderRadius: "50%",
                         border: "3px solid transparent",
-                        borderTopColor: NEON_CYAN,
-                        borderRightColor: NEON_CYAN,
-                        boxShadow: `0 0 14px ${NEON_CYAN}, inset 0 0 10px rgba(5, 217, 232, 0.4)`,
+                        borderTopColor: theme.palette.primary.main,
+                        borderRightColor: theme.palette.primary.main,
+                        boxShadow: `0 0 14px ${theme.palette.primary.main}, inset 0 0 10px ${alpha(theme.palette.primary.main, 0.4)}`,
                         animation: `${spin} 1s linear infinite`,
                     }}
                 />
@@ -81,9 +80,9 @@ const LoadingOverlay = () => {
                         inset: "16px",
                         borderRadius: "50%",
                         border: "3px solid transparent",
-                        borderBottomColor: NEON_MAGENTA,
-                        borderLeftColor: NEON_MAGENTA,
-                        boxShadow: `0 0 14px ${NEON_MAGENTA}, inset 0 0 10px rgba(255, 42, 109, 0.4)`,
+                        borderBottomColor: theme.palette.secondary.main,
+                        borderLeftColor: theme.palette.secondary.main,
+                        boxShadow: `0 0 14px ${theme.palette.secondary.main}, inset 0 0 10px ${alpha(theme.palette.secondary.main, 0.4)}`,
                         animation: `${spinReverse} 0.8s linear infinite`,
                     }}
                 />
@@ -93,8 +92,8 @@ const LoadingOverlay = () => {
                     fontFamily: '"Press Start 2P", monospace',
                     fontSize: "11px",
                     letterSpacing: "0.2em",
-                    color: NEON_CYAN,
-                    textShadow: `0 0 6px rgba(5, 217, 232, 0.9), 2px 2px 0 rgba(255, 42, 109, 0.7)`,
+                    color: theme.palette.primary.main,
+                    textShadow: `0 0 6px ${alpha(theme.palette.primary.main, 0.9)}, 2px 2px 0 ${alpha(theme.palette.secondary.main, 0.7)}`,
                     animation: `${pulse} 1.4s ease-in-out infinite`,
                 }}
             >

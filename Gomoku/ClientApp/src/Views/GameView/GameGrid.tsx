@@ -1,15 +1,9 @@
 import React from "react";
 import "./Styles/Grid.css";
-import { Box, Grid, Button, Typography } from "@mui/material";
+import {Box, Grid, Button, Typography, useTheme, alpha} from "@mui/material";
 import {CellValue} from "../../Data/CellValue";
 
 const cellSize = 30;
-
-const NEON_CYAN = "#05d9e8";
-const NEON_MAGENTA = "#ff2a6d";
-
-const markColor = (mark: string | null | undefined) =>
-    mark === "X" ? NEON_MAGENTA : NEON_CYAN;
 
 type CellProps = {
     row: number;
@@ -56,6 +50,11 @@ const GameGrid = ({ size = 10, values, onCellClick }: GridProps) => {
         Array.from({ length: size }, (_, c) => values?.[r]?.[c] ?? null)
     );
 
+    const theme = useTheme();
+
+    const markColor = (mark: string | null | undefined) =>
+        mark === "X" ? theme.palette.primary.main : theme.palette.secondary.main;
+
     return (
         <Box
             overflow="auto"
@@ -80,18 +79,18 @@ const GameGrid = ({ size = 10, values, onCellClick }: GridProps) => {
                                 padding: 0,
                                 minWidth: 0,
                                 borderRadius: 0,
-                                borderColor: "rgba(5, 217, 232, 0.35)",
+                                borderColor: alpha(theme.palette.primary.main, 0.35),
                                 color: markColor(val?.mark),
                                 backgroundColor: val?.latest
-                                    ? "rgba(255, 42, 109, 0.18)"
-                                    : "rgba(13, 2, 33, 0.55)",
+                                    ? alpha(theme.palette.secondary.main, 0.18)
+                                    : alpha(theme.palette.background.default, 0.55),
                                 boxShadow: val?.latest
-                                    ? `inset 0 0 10px ${NEON_MAGENTA}`
+                                    ? `inset 0 0 10px ${theme.palette.secondary.main}`
                                     : "none",
                                 "&:hover": {
-                                    borderColor: NEON_CYAN,
-                                    backgroundColor: "rgba(5, 217, 232, 0.12)",
-                                    boxShadow: `inset 0 0 8px rgba(5, 217, 232, 0.6)`,
+                                    borderColor: theme.palette.primary.main,
+                                    backgroundColor: alpha(theme.palette.primary.main, 0.12),
+                                    boxShadow: `inset 0 0 8px ${alpha(theme.palette.primary.main, 0.6)}`,
                                 },
                             }}
                             onClick={() => onCellClick(r, c)}
