@@ -5,7 +5,7 @@ import {HttpHelpers} from "../../Helpers/HttpHelpers";
 import {Authorization} from "../../Helpers/Authorization";
 import {Box, Button, Container, Paper, Slider, Stack, Typography, Dialog, DialogTitle, DialogContent, DialogActions} from "@mui/material";
 import {GameMode} from "../../Data/GameMode";
-import RetroTitle from "../Components/RetroTitle";
+import MainTitle from "../../Themes/Synthwave/MainTitle";
 
 function MainMenu(){
     const [user, setUser] = useState<string>("");
@@ -104,7 +104,7 @@ function MainMenu(){
                                 borderRadius: 3,
                             }}
                         >
-                            <RetroTitle fontSize="26px" />
+                            <MainTitle fontSize="26px" />
                             <Typography variant="h6" align="center" gutterBottom sx={{ mt: 2 }}>
                                 Welcome, {user}!
                             </Typography>

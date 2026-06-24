@@ -3,7 +3,7 @@ import {HttpHelpers} from "../../Helpers/HttpHelpers";
 import {useNavigate} from "react-router";
 import { Button, TextField, Box, Stack, Typography, Paper } from "@mui/material";
 import {LoginModel} from "../../Data/DataObjects";
-import RetroTitle from "../Components/RetroTitle";
+import MainTitle from "../../Themes/Synthwave/MainTitle";
 
 const LoginForm = () => {
     const navigate = useNavigate();
@@ -101,7 +101,7 @@ const LoginForm = () => {
                             borderRadius: 3,
                         }}
                     >
-                        <RetroTitle fontSize="26px" />
+                        <MainTitle fontSize="26px" />
                     </Paper>
                     <Paper
                         elevation={3}
@@ -192,7 +192,7 @@ const LoginForm = () => {
                             borderRadius: 3,
                         }}
                     >
-                        <RetroTitle fontSize="26px" />
+                        <MainTitle fontSize="26px" />
                     </Paper>
                     <Paper
                         elevation={3}
