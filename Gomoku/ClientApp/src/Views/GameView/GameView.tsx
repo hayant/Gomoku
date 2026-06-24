@@ -600,10 +600,10 @@ export default function GameView() {
                             variant="h6"
                             component="div"
                             sx={{
-                                fontFamily: '"Press Start 2P", monospace',
-                                fontSize: "14px",
-                                color: "#05d9e8",
-                                textShadow: "0 0 8px rgba(5, 217, 232, 0.8), 2px 2px 0 rgba(255, 42, 109, 0.85)",
+                                // Inherit the AppBar's text colour and the theme's font so the
+                                // brand stays readable and on-theme regardless of active theme.
+                                fontWeight: 700,
+                                letterSpacing: "0.04em",
                             }}
                         >
                             Gomoku
