@@ -14,7 +14,7 @@ const orbit = keyframes`
 const subscribe = (onChange: () => void) => RequestActivity.subscribe(onChange);
 const getSnapshot = () => RequestActivity.getCount();
 
-const LoadingOverlay = () => {
+export const LoadingOverlay = () => {
     const inFlight = React.useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 
     const theme = useTheme();
@@ -96,4 +96,4 @@ const LoadingOverlay = () => {
     );
 };
 
-export default LoadingOverlay;
+

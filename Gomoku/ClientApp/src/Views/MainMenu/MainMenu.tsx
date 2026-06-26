@@ -1,18 +1,21 @@
-import React, {useState} from "react";
+import React, {useContext, useState} from "react";
 import {GameViewProps} from "../GameView/GameView";
 import {useNavigate} from "react-router";
 import {HttpHelpers} from "../../Helpers/HttpHelpers";
 import {Authorization} from "../../Helpers/Authorization";
 import {Box, Button, Container, Paper, Slider, Stack, Typography, Dialog, DialogTitle, DialogContent, DialogActions} from "@mui/material";
 import {GameMode} from "../../Data/GameMode";
-import MainTitle from "../../Themes/Synthwave/MainTitle";
+import {GetTheme, ThemeContext} from "../../Themes/themes";
 
 function MainMenu(){
     const [user, setUser] = useState<string>("");
     const [difficulty, setDifficulty] = useState<number>(3);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [unfinishedGame, setUnfinishedGame] = useState<{gameId: number, difficulty: number} | null>(null);
-    
+
+    const themeName = useContext(ThemeContext);
+    const currentTheme = GetTheme(themeName);
+
     const navigate = useNavigate();
 
     Authorization.checkAuthentication(setUser);
@@ -104,7 +107,7 @@ function MainMenu(){
                                 borderRadius: 3,
                             }}
                         >
-                            <MainTitle fontSize="26px" />
+                            <currentTheme.MainTitle fontSize="26px" />
                             <Typography variant="h6" align="center" gutterBottom sx={{ mt: 2 }}>
                                 Welcome, {user}!
                             </Typography>
