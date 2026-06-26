@@ -1,10 +1,6 @@
 import React from "react";
 import {Box, useTheme, alpha} from "@mui/material";
-
-type MainTitleProps = {
-    fontSize?: number | string;
-    align?: "left" | "center" | "right";
-};
+import {MainTitleProps} from "../themes";
 
 // Neon "GOMOKU" logo: Press Start 2P with layered cyan/magenta glow.
 const MainTitle = ({ fontSize = "28px", align = "center" }: MainTitleProps) => {

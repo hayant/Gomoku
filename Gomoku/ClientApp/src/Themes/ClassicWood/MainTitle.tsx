@@ -1,10 +1,6 @@
 import React from "react";
 import {Box, useTheme, alpha} from "@mui/material";
-
-type MainTitleProps = {
-    fontSize?: number | string;
-    align?: "left" | "center" | "right";
-};
+import {MainTitleProps} from "../themes";
 
 // "Gomoku" carved into the wood: an elegant serif with an engraved/letterpress
 // effect — a dark inset shadow above and a faint highlight below.

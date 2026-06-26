@@ -1,9 +1,9 @@
-import React, { useCallback } from "react";
+import React, {useCallback, useContext} from "react";
 import {HttpHelpers} from "../../Helpers/HttpHelpers";
 import {useNavigate} from "react-router";
 import { Button, TextField, Box, Stack, Typography, Paper } from "@mui/material";
 import {LoginModel} from "../../Data/DataObjects";
-import MainTitle from "../../Themes/Synthwave/MainTitle";
+import {GetTheme, ThemeContext} from "../../Themes/themes";
 
 const LoginForm = () => {
     const navigate = useNavigate();
@@ -12,7 +12,10 @@ const LoginForm = () => {
     const [password2, setPassword2] = React.useState("");
     const [error, setError] = React.useState("");
     const [showLoginForm, setShowLoginForm] = React.useState(true);
-    
+    const themeName = useContext(ThemeContext);
+
+    const currentTheme = GetTheme(themeName);
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -101,7 +104,7 @@ const LoginForm = () => {
                             borderRadius: 3,
                         }}
                     >
-                        <MainTitle fontSize="26px" />
+                        <currentTheme.MainTitle fontSize="26px" />
                     </Paper>
                     <Paper
                         elevation={3}
@@ -192,7 +195,7 @@ const LoginForm = () => {
                             borderRadius: 3,
                         }}
                     >
-                        <MainTitle fontSize="26px" />
+                        <currentTheme.MainTitle fontSize="26px" />
                     </Paper>
                     <Paper
                         elevation={3}
