@@ -20,6 +20,7 @@ builder.Services.AddDbContext<GomokuDbContext>(options =>
 // Services
 builder.Services.AddScoped<UserDataAccess>();
 builder.Services.AddScoped<Gomoku.Data.DataAccess.GameDataAccess>();
+builder.Services.AddScoped<SettingDataAccess>();
 
 // Authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
