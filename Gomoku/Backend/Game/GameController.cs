@@ -46,6 +46,37 @@ public class GameController(GameDataAccess gameDataAccess, UserDataAccess userDa
     }
 
     /// <summary>
+    /// Checks if there is an unfinished local two-player game for the current user.
+    /// Returns game info (gameId) if found, null otherwise.
+    /// </summary>
+    [HttpGet("CheckUnfinishedLocalGame")]
+    public IActionResult CheckUnfinishedLocalGame()
+    {
+        var username = User?.Identity?.Name;
+        if (username == null)
+        {
+            return Unauthorized();
+        }
+
+        var user = userDataAccess.GetUser(username);
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        var game = gameDataAccess.GetUnfinishedTwoPlayerLocalGame(user.Id);
+        if (game == null)
+        {
+            return Ok(null);
+        }
+
+        return Ok(new
+        {
+            gameId = game.Id
+        });
+    }
+
+    /// <summary>
     /// Checks if there is an unfinished multiplayer game between the current user and target player.
     /// Returns game info (gameId) if found, null otherwise.
     /// </summary>

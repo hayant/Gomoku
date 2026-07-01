@@ -12,6 +12,8 @@ function MainMenu(){
     const [difficulty, setDifficulty] = useState<number>(3);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [unfinishedGame, setUnfinishedGame] = useState<{gameId: number, difficulty: number} | null>(null);
+    // Which mode the "Continue Game?" dialog is deciding for (single player vs local two-player)
+    const [pendingMode, setPendingMode] = useState<GameMode>(GameMode.SinglePlayer);
 
     const themeName = useContext(ThemeContext);
     const currentTheme = GetTheme(themeName);
@@ -27,20 +29,16 @@ function MainMenu(){
     }
     
     const handleGameStart = async (singlePlayer: boolean) => {
-        if (!singlePlayer) {
-            // For local multiplayer, start immediately
-            const gameViewProps: GameViewProps = {
-                gameMode: GameMode.LocalMultiplayer,
-                difficulty: undefined,
-            }
-            navigate("/app/game", { state: gameViewProps });
-            return;
-        }
+        const mode = singlePlayer ? GameMode.SinglePlayer : GameMode.LocalMultiplayer;
+        const endpoint = singlePlayer
+            ? "/api/Game/CheckUnfinishedGame"
+            : "/api/Game/CheckUnfinishedLocalGame";
+        setPendingMode(mode);
 
-        // For single player, check for unfinished game
+        // Check for an unfinished game of this mode; offer to continue it if one exists
         try {
             const result = await HttpHelpers.makeRequest<{gameId: number, difficulty: number} | null>(
-                "/api/Game/CheckUnfinishedGame",
+                endpoint,
                 "GET"
             );
             if (result) {
@@ -53,24 +51,29 @@ function MainMenu(){
         }
 
         // No unfinished game found, start new game
-        startNewGame();
+        startNewGame(mode);
     }
 
-    const startNewGame = () => {
-        const gameViewProps: GameViewProps = {
-            gameMode: GameMode.SinglePlayer,
-            difficulty: difficulty,
-        }
+    const startNewGame = (mode: GameMode = pendingMode) => {
+        const gameViewProps: GameViewProps = mode === GameMode.SinglePlayer
+            ? { gameMode: GameMode.SinglePlayer, difficulty: difficulty }
+            : { gameMode: GameMode.LocalMultiplayer, difficulty: undefined };
+        setDialogOpen(false);
         navigate("/app/game", { state: gameViewProps });
     }
 
     const continueExistingGame = () => {
         if (unfinishedGame) {
-            const gameViewProps: GameViewProps = {
-                gameMode: GameMode.SinglePlayer,
-                difficulty: unfinishedGame.difficulty,
-                gameId: unfinishedGame.gameId,
-            }
+            const gameViewProps: GameViewProps = pendingMode === GameMode.SinglePlayer
+                ? {
+                    gameMode: GameMode.SinglePlayer,
+                    difficulty: unfinishedGame.difficulty,
+                    gameId: unfinishedGame.gameId,
+                }
+                : {
+                    gameMode: GameMode.LocalMultiplayer,
+                    gameId: unfinishedGame.gameId,
+                };
             navigate("/app/game", { state: gameViewProps });
         }
         setDialogOpen(false);
@@ -195,7 +198,7 @@ function MainMenu(){
                     </Typography>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={startNewGame}>Start new</Button>
+                    <Button onClick={() => startNewGame()}>Start new</Button>
                     <Button onClick={continueExistingGame} variant="contained">Continue existing</Button>
                 </DialogActions>
             </Dialog>

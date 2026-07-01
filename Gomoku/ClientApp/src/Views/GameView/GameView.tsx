@@ -232,14 +232,19 @@ export default function GameView() {
         setBoard(next);
 
         // Save moves to database before checking victory
-        if (state.gameMode === GameMode.SinglePlayer && turn.mark === "X") {
+        if (state.gameMode === GameMode.SinglePlayer && connection && turn.mark === "X") {
             // Save human move to database
-            if (connection) {
-                try {
-                    await connection.invoke('MakeSinglePlayerMove', row, col);
-                } catch (error: unknown) {
-                    console.error("Failed to save single player move:", error);
-                }
+            try {
+                await connection.invoke('MakeSinglePlayerMove', row, col);
+            } catch (error: unknown) {
+                console.error("Failed to save single player move:", error);
+            }
+        } else if (state.gameMode === GameMode.LocalMultiplayer && connection && turn.mark) {
+            // Persist both players' moves; X is saved under the user, O under a null userId
+            try {
+                await connection.invoke('MakeLocalMove', row, col, turn.mark);
+            } catch (error: unknown) {
+                console.error("Failed to save local move:", error);
             }
         }
 
@@ -252,7 +257,7 @@ export default function GameView() {
             }
             
             // Update game end time in database when a player wins
-            if (connection && (state.gameMode === GameMode.SinglePlayer || state.gameMode === GameMode.OnlineMultiplayer)) {
+            if (connection && (state.gameMode === GameMode.SinglePlayer || state.gameMode === GameMode.OnlineMultiplayer || state.gameMode === GameMode.LocalMultiplayer)) {
                 try {
                     await connection.invoke('EndGameWithWinner');
                 } catch (error: unknown) {
@@ -371,9 +376,8 @@ export default function GameView() {
     }, [board, turn, checkForVictory]);
 
     useEffect(() => {
-        // Create SignalR connection for both single player (AI) and online multiplayer
-        if (state.gameMode === GameMode.LocalMultiplayer) return;
-
+        // Create a SignalR connection for every mode. Local two-player games use the hub only
+        // to persist/restore turns (there is no opponent to route moves to).
         const newConnection = new HubConnectionBuilder()
             .withUrl('/gameHub')
             .withAutomaticReconnect()
@@ -428,7 +432,45 @@ export default function GameView() {
                         setError("Failed to initialize game");
                     }
                 }
-                
+
+                // Start or continue a local two-player game in the database
+                if (state.gameMode === GameMode.LocalMultiplayer) {
+                    try {
+                        if (state.gameId) {
+                            // Continue existing game
+                            const continueSuccess = await newConnection.invoke<boolean>('ContinueGame', state.gameId);
+                            if (!continueSuccess) {
+                                console.error("Failed to continue game");
+                                setError("Failed to continue game");
+                                return;
+                            }
+
+                            // Load game state (turns) and restore the board. Pass isSinglePlayer=false
+                            // so the next mark is derived from strict X/O alternation.
+                            const turns = await newConnection.invoke<TurnData[]>('LoadGameState', state.gameId);
+                            const restoredState: RestoredGameState = restoreGameState(turns, false, checkForVictory, SIZE);
+
+                            setBoard(restoredState.board);
+                            setTurn({ mark: restoredState.currentMark, latest: true });
+                            setTurnCount(restoredState.turnCount);
+
+                            if (!restoredState.hasVictory) {
+                                setGameOver(false);
+                                setError(null);
+                            } else {
+                                setGameOver(true);
+                                setError(`Player ${restoredState.winnerMark} wins!`);
+                            }
+                        } else {
+                            // Start new game
+                            await newConnection.invoke('StartLocalGame');
+                        }
+                    } catch (error: unknown) {
+                        console.error("Failed to start/continue local game:", error);
+                        setError("Failed to initialize game");
+                    }
+                }
+
                 // Only set up online multiplayer handlers for online mode
                 if (state.gameMode === GameMode.OnlineMultiplayer) {
                     // Check if we're continuing an existing game

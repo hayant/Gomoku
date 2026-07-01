@@ -496,6 +496,29 @@ public class GameHub : Hub
         }
     }
 
+    /// <summary>
+    /// Saves a move in a local two-player (hot-seat) game. Both players share the same
+    /// connection and account, so player 1 (X) is persisted with the logged-in user's id
+    /// while player 2 (O) is persisted with a null UserId. This reuses the "second player
+    /// is null" convention that single-player already uses for the AI, so no extra column
+    /// is needed. (Note: for a local game a null UserId means "player 2", not "AI".)
+    /// </summary>
+    public async Task MakeLocalMove(int row, int col, string mark)
+    {
+        var username = Context.User?.Identity?.Name;
+        if (username == null) return;
+
+        var gameId = GetGameIdForConnection();
+        if (!gameId.HasValue) return;
+
+        var user = userDataAccess.GetUser(username);
+        if (user == null) return;
+
+        // X → the logged-in user; O → null (local player 2 has no account of its own)
+        int? moveUserId = mark == "X" ? user.Id : null;
+        SaveGameTurn(gameId.Value, col, row, moveUserId);
+    }
+
     public async Task MakeMove(int row, int col)
     {
         var username = Context.User?.Identity?.Name;
@@ -623,6 +646,53 @@ public class GameHub : Hub
     }
 
     /// <summary>
+    /// Creates a new local two-player (hot-seat) game and returns its id. Both players share
+    /// this single connection; only player 1 (X) has an account, so User2Id is null and O
+    /// moves are later persisted with a null UserId.
+    /// </summary>
+    public async Task<int> StartLocalGame()
+    {
+        var username = Context.User?.Identity?.Name;
+        if (username == null)
+        {
+            throw new InvalidOperationException("User not authenticated");
+        }
+
+        var user = userDataAccess.GetUser(username);
+        if (user == null)
+        {
+            throw new InvalidOperationException("User not found");
+        }
+
+        const int gridSizeX = 20;
+        const int gridSizeY = 20;
+
+        var gameId = gameDataAccess.CreateGame(
+            userId: user.Id,
+            user2Id: null, // Local player 2 has no account; O moves are saved with a null UserId
+            difficulty: null,
+            gridSizeX: gridSizeX,
+            gridSizeY: gridSizeY,
+            type: GameType.TwoPlayerLocal
+        );
+
+        // Store game ID for this connection and initialize turn state
+        lock (Locker)
+        {
+            ConnectionToGameId[Context.ConnectionId] = gameId;
+            // Initialize turn state for the game
+            GameTurnStates.TryAdd(gameId, new TurnState
+            {
+                TurnNumber = 1,
+                CurrentMark = "X",
+                TurnStartTime = DateTimeOffset.UtcNow
+            });
+        }
+
+        return gameId;
+    }
+
+    /// <summary>
     /// Updates the game end time when a player wins. Called when game ends with a winner.
     /// </summary>
     public async Task<bool> EndGameWithWinner()
@@ -691,8 +761,9 @@ public class GameHub : Hub
         // For single player: user must be UserId
         // For multiplayer: user must be either UserId or User2Id
         bool isAuthorized = false;
-        if (game.Type == (int)GameType.SinglePlayer)
+        if (game.Type == (int)GameType.SinglePlayer || game.Type == (int)GameType.TwoPlayerLocal)
         {
+            // Single-player and local two-player games belong to a single account
             isAuthorized = game.UserId == user.Id;
         }
         else if (game.Type == (int)GameType.TwoPlayerOnline)
@@ -708,8 +779,9 @@ public class GameHub : Hub
         var turns = gameDataAccess.GetGameTurns(gameId);
         
         // Determine who is X and who is O
-        // For single player: UserId is X, AI is O
-        // For multiplayer: UserId is X, User2Id is O
+        // For single player: UserId is X, AI is O (null UserId)
+        // For local two-player: UserId is X, player 2 is O (null UserId)
+        // For online multiplayer: UserId is X, User2Id is O
         return turns.Select(turn => new TurnData
         {
             TurnNumber = turn.TurnNumber,

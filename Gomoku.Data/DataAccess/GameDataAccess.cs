@@ -103,6 +103,20 @@ public class GameDataAccess(GomokuDbContext database)
     }
 
     /// <summary>
+    /// Gets the latest unfinished local two-player game for a user.
+    /// Returns null if no such game exists.
+    /// </summary>
+    public Game? GetUnfinishedTwoPlayerLocalGame(int userId)
+    {
+        return database.Games
+            .Where(g => g.UserId == userId
+                && g.Type == (int)GameType.TwoPlayerLocal
+                && g.EndTime == null)
+            .OrderByDescending(g => g.StartTime)
+            .FirstOrDefault();
+    }
+
+    /// <summary>
     /// Gets all game turns for a specific game, ordered by turn number.
     /// </summary>
     public List<GameTurn> GetGameTurns(int gameId)
