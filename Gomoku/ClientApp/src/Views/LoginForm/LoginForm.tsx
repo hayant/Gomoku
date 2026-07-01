@@ -3,10 +3,11 @@ import {HttpHelpers} from "../../Helpers/HttpHelpers";
 import {useNavigate} from "react-router";
 import { Button, TextField, Box, Stack, Typography, Paper } from "@mui/material";
 import {LoginModel} from "../../Data/DataObjects";
-import {GetTheme, ThemeContext} from "../../Themes/themes";
+import {GetTheme, ThemeContext, ThemeControlContext} from "../../Themes/themes";
 
 const LoginForm = () => {
     const navigate = useNavigate();
+    const { syncFromServer } = useContext(ThemeControlContext);
     const [username, setUsername] = React.useState("");
     const [password, setPassword] = React.useState("");
     const [password2, setPassword2] = React.useState("");
@@ -36,7 +37,11 @@ const LoginForm = () => {
         }
         
         HttpHelpers.makeRequest("api/Login/login", "POST", loginData)
-            .then(() => navigate("/app"))
+            .then(() => {
+                // Adopt this user's saved theme (DB wins on login).
+                syncFromServer();
+                navigate("/app");
+            })
             .catch(err => setError(err.message));
     }
 

@@ -1,14 +1,11 @@
 import {Box, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Tooltip} from "@mui/material";
 import React, {useContext, useState} from "react";
 import {Check, Palette} from "@mui/icons-material";
-import {GetThemes, ThemeContext} from "./themes";
+import {GetThemes, ThemeContext, ThemeControlContext} from "./themes";
 
-interface ThemeSelectorProps {
-    setTheme: React.Dispatch<React.SetStateAction<string>>;
-}
-
-export const ThemeSelector = ({ setTheme }: ThemeSelectorProps) => {
+export const ThemeSelector = () => {
     const currentTheme = useContext(ThemeContext);
+    const { setTheme } = useContext(ThemeControlContext);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
 

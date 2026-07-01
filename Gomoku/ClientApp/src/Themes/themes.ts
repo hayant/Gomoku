@@ -20,6 +20,19 @@ export interface ThemeComponents {
 
 export const ThemeContext = createContext("");
 
+export interface ThemeControl {
+    // Sets the active theme and persists it for the logged-in user (the persist
+    // is a no-op when unauthenticated — localStorage remains the fallback).
+    setTheme: (themeName: string) => void;
+    // Pulls the saved theme from the backend; the DB value wins on login.
+    syncFromServer: () => void;
+}
+
+export const ThemeControlContext = createContext<ThemeControl>({
+    setTheme: () => {},
+    syncFromServer: () => {},
+});
+
 const Themes = new Map<string, ThemeComponents>();
 
 Themes.set("Synthwave", {
