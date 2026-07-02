@@ -1,4 +1,4 @@
-import {Box, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Tooltip} from "@mui/material";
+import {AppBar, Box, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Toolbar, Tooltip} from "@mui/material";
 import React, {useContext, useState} from "react";
 import {Check, Palette} from "@mui/icons-material";
 import {GetThemes, ThemeContext, ThemeControlContext} from "./themes";
@@ -15,32 +15,37 @@ export const ThemeSelector = () => {
     };
 
     return (
-        <Box sx={{ position: "fixed", top: 8, right: 8, zIndex: (theme) => theme.zIndex.appBar + 1 }}>
-            <Tooltip title="Change theme">
-                <IconButton
-                    aria-label="Change theme"
-                    aria-haspopup="true"
-                    aria-expanded={open ? "true" : undefined}
-                    onClick={(e) => setAnchorEl(e.currentTarget)}
-                    color="inherit"
-                >
-                    <Palette />
-                </IconButton>
-            </Tooltip>
-            <Menu anchorEl={anchorEl} open={open} onClose={() => setAnchorEl(null)}>
-                {GetThemes().map((themeName) => (
-                    <MenuItem
-                        key={themeName}
-                        selected={themeName === currentTheme}
-                        onClick={() => handleSelect(themeName)}
+        // In normal document flow (not fixed/floating) so page content starts
+        // below the bar instead of being overlapped on small viewports.
+        <AppBar position="static" sx={{ borderRadius: 0 }}>
+            <Toolbar variant="dense">
+                <Box sx={{ flexGrow: 1 }} />
+                <Tooltip title="Change theme">
+                    <IconButton
+                        aria-label="Change theme"
+                        aria-haspopup="true"
+                        aria-expanded={open ? "true" : undefined}
+                        onClick={(e) => setAnchorEl(e.currentTarget)}
+                        color="inherit"
                     >
-                        <ListItemIcon>
-                            {themeName === currentTheme && <Check fontSize="small" />}
-                        </ListItemIcon>
-                        <ListItemText>{themeName}</ListItemText>
-                    </MenuItem>
-                ))}
-            </Menu>
-        </Box>
+                        <Palette />
+                    </IconButton>
+                </Tooltip>
+                <Menu anchorEl={anchorEl} open={open} onClose={() => setAnchorEl(null)}>
+                    {GetThemes().map((themeName) => (
+                        <MenuItem
+                            key={themeName}
+                            selected={themeName === currentTheme}
+                            onClick={() => handleSelect(themeName)}
+                        >
+                            <ListItemIcon>
+                                {themeName === currentTheme && <Check fontSize="small" />}
+                            </ListItemIcon>
+                            <ListItemText>{themeName}</ListItemText>
+                        </MenuItem>
+                    ))}
+                </Menu>
+            </Toolbar>
+        </AppBar>
     );
 }
